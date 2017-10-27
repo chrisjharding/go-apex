@@ -72,9 +72,10 @@ type input struct {
 // output for the node shim.
 type output struct {
 	// The boomeranged ID from the caller
-	ID    string      `json:"id,omitempty"`
-	Error string      `json:"error,omitempty"`
-	Value interface{} `json:"value,omitempty"`
+	ID        string      `json:"id,omitempty"`
+	Error     string      `json:"error,omitempty"`
+	ErrorType string      `json:"error_type,omitempty"`
+	Value     interface{} `json:"value,omitempty"`
 }
 
 // manager for operating over stdio.
@@ -106,6 +107,9 @@ func (m *manager) Start() {
 		out := output{ID: msg.ID, Value: v}
 
 		if err != nil {
+			if err, ok := err.(Error); ok {
+				out.ErrorType = err.GetType()
+			}
 			out.Error = err.Error()
 		}
 
